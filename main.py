@@ -1,39 +1,37 @@
-import argparse, csv
-from tabulate import tabulate
+"""Скрипт читает файлы с данными о подготовке студентов к экзаменам
+    и формирует отчет, в котором будет медианная сумма трат на кофе
+    по каждому студенту за весь период сессии."""
+
+import os.path
+import argparse
+import csv
 import statistics as stat
+from tabulate import tabulate
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--files', nargs='*', type=str, help='Название файлов')
 parser.add_argument('-r', '--report', type=str, help='Название отчета')
 args = parser.parse_args()
 
-# print(args.files)
-# print(args.report)
-
 dct = {}
 for file in args.files:
-    with open(file, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
+    if os.path.exists(file):
+        with open(file, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
 
-        # print(reader)
+            for row in enumerate(reader, 0):
 
-        for row in enumerate(reader,0):
+                if row[0] != 0:
+                    lst = list(row[1])
+                else:
+                    continue
 
-            # print(row)
-
-            if row[0] == 0:
-                continue
-            else:
-                lst = list(row[1])
-
-            # print(lst)
-
-            if lst[0] in dct:
-                dct[lst[0]].append(lst[2])
-            else:
-                dct[lst[0]] = [lst[2]]
-
-# print(dct)
+                if lst[0] in dct:
+                    dct[lst[0]].append(float(lst[2]))
+                else:
+                    dct[lst[0]] = [float(lst[2])]
+    else:
+        print(f'Файл {file} не существует!')
 
 result = []
 for student, spent in dct.items():
